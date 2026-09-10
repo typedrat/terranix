@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- feat(core): add NixOS-style `assertions` and `warnings` options
+- refactor(modules/terraform/backends): report every failed assertion at once; failure output changes from `Failed assertion: <msg>` to a `Failed assertions:` header followed by one `- <msg>` line per failure
 - chore(default.nix): remove meta section from package derivation (#169)
 - chore(flake): split flake.nix into dendritic sub-modules (#170)
 - feat: add `encrypt`, `use_lockfile`, `skip_credentials_validation` and `skip_region_validation` options to s3 backend (#168)
