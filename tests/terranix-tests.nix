@@ -115,5 +115,6 @@
     file = ./terranix-tests/19-warnings.nix;
     outputFile = ./terranix-tests/19-warnings-json.nix.output;
     partialMatchOutput = true;
+    refuteOutput = "\"warnings\"";
   }
 ]

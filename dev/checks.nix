@@ -79,6 +79,33 @@
               "terraform init"
               "terraform apply"
             ];
+
+          # a failed assertion must not block reading assertions/warnings/_meta,
+          # only config; mirrors nixos, where unrelated config stays readable
+          failed-assertion-keeps-result-readable =
+            let
+              result = import ../core/default.nix {
+                inherit pkgs;
+                modules = [{
+                  assertions = [{
+                    assertion = false;
+                    message = "deliberately failing assertion";
+                  }];
+                  warnings = [ "deliberately reachable warning" ];
+                  _meta.marker = "deliberately reachable meta";
+                }];
+              };
+              ok =
+                builtins.elem
+                  { assertion = false; message = "deliberately failing assertion"; }
+                  result.assertions
+                && builtins.elem "deliberately reachable warning" result.warnings
+                && result._meta.marker == "deliberately reachable meta";
+            in
+            assert ok;
+            pkgs.runCommand "failed-assertion-keeps-result-readable" { } ''
+              echo "PASS" > $out
+            '';
         };
     };
 }

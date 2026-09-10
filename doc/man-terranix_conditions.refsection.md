@@ -3,6 +3,9 @@
 Conditions and assertions can be used to throw human readable exceptions and
 to create conditional terraform resources or parameters.
 
+`assertions` and `warnings` are internal options and do not appear in the
+generated options reference; this section is their documentation.
+
 ## assertions
 
 Add an entry to the `assertions` option to state a condition that has to hold
@@ -36,6 +39,8 @@ error:
 
 `warnings` is the non-fatal counterpart. Every string in the list is printed
 while the configuration is evaluated, and the terraform JSON is still written.
+A failing assertion aborts before warnings are shown, so pending warnings do
+not print alongside it.
 
 ```nix
 config = {
