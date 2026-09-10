@@ -91,4 +91,29 @@
     file = ./terranix-tests/16.nix;
     outputFile = ./terranix-tests/16.nix.output;
   }
+  {
+    text = "assertions : a satisfied assertion is silent and stays out of the json";
+    file = ./terranix-tests/17-assertions.nix;
+    outputFile = ./terranix-tests/17-assertions.nix.output;
+  }
+  {
+    text = "assertions : every failing assertion is reported together";
+    file = ./terranix-tests/18-assertions-fail.nix;
+    success = false;
+    outputFile = ./terranix-tests/18-assertions-fail.nix.output;
+    partialMatchOutput = true;
+    dedentOutput = true;
+  }
+  {
+    text = "warnings : a warning is printed to the user";
+    file = ./terranix-tests/19-warnings.nix;
+    outputFile = ./terranix-tests/19-warnings-message.nix.output;
+    partialMatchOutput = true;
+  }
+  {
+    text = "warnings : a warning does not fail the build or reach the json";
+    file = ./terranix-tests/19-warnings.nix;
+    outputFile = ./terranix-tests/19-warnings-json.nix.output;
+    partialMatchOutput = true;
+  }
 ]

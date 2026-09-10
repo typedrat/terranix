@@ -62,8 +62,9 @@ let
   terranix = mods:
     let
       evaluated = evaluateConfiguration mods;
+      inherit (evaluated.config) assertions warnings;
       meta = evaluated.config._meta or { };
-      result = sanitize (removeAttrs evaluated.config [ "_meta" ]);
+      result = sanitize (removeAttrs evaluated.config [ "_meta" "assertions" "warnings" ]);
       genericWhitelist = f: key:
         let attr = f result.${key};
         in
@@ -76,7 +77,7 @@ let
       whitelistWithoutEmpty = genericWhitelist (filterAttrs (name: attr: attr != { }));
     in
     {
-      config = { } //
+      config = lib'.asserts.checkAssertWarn assertions warnings ({ } //
         (whitelistWithoutEmpty "ephemeral") //
         (whitelistWithoutEmpty "data") //
         (whitelist "import") //
@@ -88,8 +89,9 @@ let
         (whitelist "removed") //
         (whitelistWithoutEmpty "resource") //
         (whitelist "terraform") //
-        (whitelist "variable");
+        (whitelist "variable"));
 
+      inherit assertions warnings;
       _meta = meta;
     };
 

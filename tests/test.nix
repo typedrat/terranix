@@ -7,9 +7,10 @@ let
   #  file = ./terranix-tests/05.nix;
   #  success = true;
   #  outputFile = ./terranix-tests/05.nix.output;
+  #  dedentOutput = true;
   #} ]
   terranix-tests = import ./terranix-tests.nix;
-  terranix-test-template = { text, file, options ? [ ], success ? true, outputFile ? "", partialMatchOutput ? false, ... }:
+  terranix-test-template = { text, file, options ? [ ], success ? true, outputFile ? "", partialMatchOutput ? false, dedentOutput ? false, ... }:
     ''
       @test "${text}" {
       run ${terranix}/bin/terranix ${concatStringsSep " " options} --pkgs ${nixpkgs} --quiet ${file}
@@ -17,7 +18,10 @@ let
       # edit output to make sure no nix store paths are included
       # - they cause tests to fail depending on environment
       output=$(echo "$output" | sed 's|/nix/store/.*-|<nix store path>-|')
-
+      ${optionalString dedentOutput ''
+        # nix indents every continuation line of a multi-line error by 7 spaces
+        output=$(echo "$output" | sed 's|^       ||')
+      ''}
       ${if success then "assert_success" else "assert_failure"}
       ${optionalString (outputFile != "") "assert_output ${optionalString partialMatchOutput "--partial"} ${escapeShellArg (fileContents outputFile)}"}
       }
