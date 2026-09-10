@@ -1,1 +1,1 @@
-Failed assertion: You defined multiple terraform_states with the same name!
+- You defined multiple terraform_states with the same name!

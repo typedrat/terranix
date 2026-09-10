@@ -163,26 +163,25 @@ in
       backends = [ "local" "s3" "etcd" ];
       notNull = element: !(isNull element);
 
+      definedBackends = filter notNull
+        (map (backend: config.backend."${backend}") backends);
+
+      allRemoteStates = flatten
+        (map attrNames
+          (filter (element: element != { })
+            (map (backend: config.remote_state."${backend}") backends)));
+
       backendConfigurations =
         let
           rule = backend:
             mkIf (config.backend."${backend}" != null) {
               terraform."backend"."${backend}" = config.backend."${backend}";
             };
-
-          backendConfigs = map (backend: config.backend."${backend}") backends;
         in
-        mkAssert (length (filter notNull backendConfigs) < 2)
-          "You defined multiple backends, stick to one!"
-          (mkMerge (map rule backends));
+        mkMerge (map rule backends);
 
       remoteConfigurations =
         let
-          backendConfigs = map (backend: config.remote_state."${backend}") backends;
-          allRemoteStates = flatten
-            (map attrNames (filter (element: element != { }) backendConfigs));
-          uniqueRemoteStates = unique allRemoteStates;
-
           remote = backend:
             mkIf (config.remote_state."${backend}" != { }) {
               data."terraform_remote_state" = mapAttrs
@@ -193,10 +192,23 @@ in
                 config.remote_state."${backend}";
             };
         in
-        mkAssert (length allRemoteStates == length uniqueRemoteStates)
-          "You defined multiple terraform_states with the same name!"
-          (mkMerge (map remote backends));
+        mkMerge (map remote backends);
     in
-    mkMerge [ backendConfigurations remoteConfigurations ];
+    mkMerge [
+      backendConfigurations
+      remoteConfigurations
+      {
+        assertions = [
+          {
+            assertion = length definedBackends < 2;
+            message = "You defined multiple backends, stick to one!";
+          }
+          {
+            assertion = allRemoteStates == unique allRemoteStates;
+            message = "You defined multiple terraform_states with the same name!";
+          }
+        ];
+      }
+    ];
 
 }
