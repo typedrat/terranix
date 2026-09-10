@@ -7,12 +7,11 @@ with lib;
 
 let
   mkMagicMergeOption =
-    {
-      description ? "",
-      example ? { },
-      default ? { },
-      apply ? id,
-      ...
+    { description ? ""
+    , example ? { }
+    , default ? { }
+    , apply ? id
+    , ...
     }:
     mkOption {
       inherit
@@ -25,14 +24,15 @@ let
         with lib.types;
         let
           valueType =
-            nullOr (oneOf [
-              bool
-              int
-              float
-              str
-              (attrsOf valueType)
-              (listOf valueType)
-            ])
+            nullOr
+              (oneOf [
+                bool
+                int
+                float
+                str
+                (attrsOf valueType)
+                (listOf valueType)
+              ])
             // {
               description = "bool, int, float or str";
               emptyValue.value = { };
@@ -42,9 +42,8 @@ let
     };
 
   mkReferenceableOption =
-    {
-      referencePrefix ? "",
-      ...
+    { referencePrefix ? ""
+    , ...
     }@args:
     mkMagicMergeOption (
       args
@@ -55,13 +54,15 @@ let
           in
           mapAttrsOrSkip (
             type: v1:
-            mapAttrsOrSkip (
-              label: v2:
-              if isAttrs v2 then
-                v2 // { __functor = self: attr: "\${${referencePrefix}${type}.${label}.${attr}}"; }
-              else
-                v2
-            ) v1
+              mapAttrsOrSkip
+                (
+                  label: v2:
+                    if isAttrs v2 then
+                      v2 // { __functor = self: attr: "\${${referencePrefix}${type}.${label}.${attr}}"; }
+                    else
+                      v2
+                )
+                v1
           );
       }
     );
